@@ -14,11 +14,16 @@ let isJumping
 let dinoFrame
 let currentFrameTime
 let yVelocity
+let manualJumpEnabled
+
+export const DINO_JUMP_SPEED = JUMP_SPEED
+export const DINO_GRAVITY = GRAVITY
 export function setupDino() {
   isJumping = false
   dinoFrame = 0
   currentFrameTime = 0
   yVelocity = 0
+  manualJumpEnabled = true
   setCustomProperty(dinoElem, "--bottom", 0)
   document.removeEventListener("keydown", onJump)
   document.addEventListener("keydown", onJump)
@@ -37,12 +42,29 @@ export function setDinoLose() {
   dinoElem.src = "imgs/dino-lose.png"
 }
 
-export function triggerAutoJump() {
-  // Only jump if not already jumping
-  if (!isJumping) {
-    yVelocity = JUMP_SPEED
-    isJumping = true
+export function requestJump() {
+  if (isJumping) return false
+
+  yVelocity = JUMP_SPEED
+  isJumping = true
+  return true
+}
+
+export function setManualJumpEnabled(enabled) {
+  manualJumpEnabled = Boolean(enabled)
+}
+
+export function getDinoState() {
+  return {
+    isJumping,
+    canJump: !isJumping,
+    yVelocity,
+    bottomPercent: getCustomProperty(dinoElem, "--bottom"),
   }
+}
+
+export function triggerAutoJump() {
+  return requestJump()
 }
 
 function handleRun(delta, speedScale) {
@@ -73,8 +95,6 @@ function handleJump(delta) {
 }
 
 function onJump(e) {
-  if (e.code !== "Space" || isJumping) return
-
-  yVelocity = JUMP_SPEED
-  isJumping = true
+  if (e.code !== "Space" || !manualJumpEnabled) return
+  requestJump()
 }

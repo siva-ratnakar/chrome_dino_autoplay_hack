@@ -10,8 +10,33 @@
 </head>
 <body>
   <div class="world" data-world>
+    <div class="controls" data-controls>
+      <label>
+        Mode
+        <select data-mode-select>
+          <option value="auto-planner">Auto (MPC Planner)</option>
+          <option value="auto-model">Auto (Custom Model)</option>
+          <option value="manual">Manual</option>
+        </select>
+      </label>
+      <label>
+        Model File
+        <input type="file" data-model-file accept=".js,.mjs" />
+      </label>
+      <button type="button" data-record-toggle>Start Recording</button>
+      <button type="button" data-download-data disabled>Download Data</button>
+      <div class="model-status" data-model-status>No custom model loaded. Using built-in planner.</div>
+    </div>
+
+    <div class="mode-indicator" data-mode-indicator>MODE: AUTO (MPC)</div>
     <div class="score" data-score>0</div>
-    <div class="start-screen" data-start-screen>Press Any Key To Start<br><small>Press X to toggle auto-jump | Press R to restart</small></div>
+    <div class="start-screen" data-start-screen>
+      Press Any Key To Start
+      <br>
+      <small>
+        Keys: X toggle manual/auto, M toggle model/planner, R restart, Space jump (manual)
+      </small>
+    </div>
     <img src="imgs/ground.png" class="ground" data-ground>
     <img src="imgs/ground.png" class="ground" data-ground>
     <img src="imgs/dino-stationary.png" class="dino" data-dino>

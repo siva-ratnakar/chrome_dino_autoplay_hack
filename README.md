@@ -1,140 +1,146 @@
-# Chrome Dino Game - Auto-Jump Edition
+# Chrome Dino Rebuild + Advanced Autoplay
 
-A modified version of the classic Chrome Dino game with auto-jump functionality and enhanced controls.
+This project recreates Chrome Dino and now includes a high-performance autoplay stack with:
 
-## 🎮 Features
+- Manual play
+- Built-in advanced autopilot (default)
+- Plug-and-play custom model support
+- In-game training data recording and export
+- Lightweight trainer that generates loadable model files
 
-- **Auto-Jump Mode**: The dino automatically jumps over obstacles (enabled by default)
-- **Manual Mode**: Traditional gameplay where you control the jumps
-- **Toggle Controls**: Switch between auto and manual modes during gameplay
-- **Instant Restart**: Restart the game at any time
-- **Visual Feedback**: Score color indicates current mode
+## What Is New
 
-## 🚀 How to Run the Game
+### 1) Advanced Default Autoplay (MPC-style planner)
+
+The default auto mode uses receding-horizon planning:
+
+- Simulates the dino jump arc with game physics
+- Simulates obstacle motion with current speed scaling
+- Evaluates safe jump windows over a lookahead horizon
+- Jumps at the latest safe deadline for stable survival
+- Has emergency/failsafe handling for close obstacles
+
+This is significantly stronger than fixed-distance jump heuristics and is now the default mode.
+
+### 2) User-Selectable Modes
+
+- `Auto (MPC Planner)` (default)
+- `Auto (Custom Model)`
+- `Manual`
+
+You can switch in the UI dropdown or by keyboard.
+
+### 3) Plug-and-Play Model API
+
+You can integrate your own model in two ways:
+
+- Load an ES module file (`.mjs/.js`) with the Model File picker
+- Register from a browser script via `window.registerDinoModel(model, { name })`
+
+Accepted model shapes:
+
+- Function: `model(state) => decision`
+- Object: `{ predict(state) => decision }`
+
+Accepted `decision` formats:
+
+- `"jump"` or `"none"`
+- `true` / `false`
+- `{ action: "jump" | "none", confidence?: number }`
+
+### 4) Training Data Pipeline
+
+The game can record per-frame labeled data:
+
+- `Start Recording` / `Stop Recording`
+- `Download Data` outputs `.jsonl` (NDJSON)
+
+You can train a model and re-import it directly.
+
+## Run The Game
 
 ### Prerequisites
-- Python 3.x installed on your system
-- A web browser (Chrome, Firefox, Safari, etc.)
 
-### Setup Instructions
+- Python 3.x (or any static web server)
+- Modern browser
 
-1. **Download/Clone the game files** to your local machine
+### Start
 
-2. **Open Command Prompt or PowerShell** and navigate to the game directory:
-   ```powershell
-   cd "path\to\chrome-dino-game-clone-main"
-   ```
-
-3. **Start a local HTTP server** (required for ES6 modules):
-   ```powershell
-   python -m http.server 8000
-   ```
-
-4. **Open your web browser** and go to:
-   ```
-   http://localhost:8000/index.html
-   ```
-
-5. **Start playing!** Press any key to begin the game.
-
-## 🎯 How to Play
-
-### Game Controls
-
-| Key | Action | Description |
-|-----|--------|-------------|
-| **Any Key** | Start Game | Begin or restart after game over |
-| **Spacebar** | Manual Jump | Jump over obstacles (only when auto-jump is OFF) |
-| **X** | Toggle Auto-Jump | Switch between auto and manual modes |
-| **R** | Restart Game | Instantly restart the game |
-
-### Game Modes
-
-#### 🟢 Auto-Jump Mode (Default)
-- **Score Color**: Green
-- **Behavior**: Dino automatically jumps over all obstacles
-- **Outcome**: Game runs indefinitely - you never lose!
-- **Use Case**: Perfect for watching the dino run automatically or testing high scores
-
-#### 🔴 Manual Mode
-- **Score Color**: Red  
-- **Behavior**: You must manually jump over obstacles using spacebar
-- **Outcome**: Traditional gameplay - hit an obstacle and you lose
-- **Use Case**: Classic dino game experience with challenge
-
-### Visual Indicators
-
-- **Green Score**: Auto-jump is enabled
-- **Red Score**: Auto-jump is disabled (manual mode)
-- **Score Counter**: Displays current points in top-right corner
-
-## 🎲 Gameplay Tips
-
-1. **Start with Auto-Jump**: The game begins with auto-jump enabled - just press any key and watch!
-
-2. **Test Manual Mode**: Press 'X' to disable auto-jump and try the traditional challenge
-
-3. **Quick Restart**: Press 'R' anytime to instantly restart with auto-jump re-enabled
-
-4. **Score Watching**: In auto-jump mode, see how high your score can get without intervention
-
-5. **Mode Switching**: You can toggle between modes at any time during gameplay
-
-## 🛠️ Technical Details
-
-### File Structure
-```
-chrome-dino-game-clone-main/
-├── index.html          # Main game page
-├── script.js           # Main game logic and controls
-├── dino.js            # Dino character controls
-├── cactus.js          # Obstacle generation
-├── ground.js          # Scrolling ground
-├── styles.css         # Game styling
-├── updateCustomProperty.js  # Utility functions
-└── imgs/              # Game sprites
-    ├── dino-stationary.png
-    ├── dino-run-0.png
-    ├── dino-run-1.png
-    ├── dino-lose.png
-    ├── cactus.png
-    └── ground.png
+```powershell
+cd "path\to\chrome_dino_autoplay_hack"
+python -m http.server 8000
 ```
 
-### Auto-Jump Logic
-- Detects obstacles within 180 pixels of the dino
-- Automatically triggers jump when obstacle approaches
-- Only jumps if dino is not already in the air
-- Ensures successful clearance of all obstacles
+Open:
 
-## 🔧 Troubleshooting
+```text
+http://localhost:8000/index.html
+```
 
-### Blank Screen Issues
-- **Cause**: ES6 modules require HTTP server (can't run from file://)
-- **Solution**: Always use `python -m http.server 8000` and access via `http://localhost:8000`
+## Controls
 
-### Game Not Responding
-- **Check Console**: Press F12 and check browser console for errors
-- **Restart Server**: Stop the Python server (Ctrl+C) and restart it
-- **Clear Cache**: Refresh browser with Ctrl+F5
+| Key | Action |
+|---|---|
+| Any Key | Start game / restart after game over |
+| Space | Jump (manual mode only) |
+| X | Toggle `Manual` <-> `Auto (MPC Planner)` |
+| M | Toggle `Auto (Custom Model)` <-> `Auto (MPC Planner)` |
+| R | Restart immediately |
 
-### Images Not Loading
-- **Verify Path**: Ensure you're in the correct directory when starting the server
-- **Check imgs/ Folder**: Confirm all PNG files are present in the imgs directory
+## Plug In A Model
 
-## 🎮 Original Game Credit
+### Option A: File picker (recommended)
 
-Based on the classic Chrome Dino game (T-Rex Runner) that appears when Chrome is offline.
+1. Set mode to `Auto (Custom Model)`.
+2. Pick a file like `models/example-threshold-model.mjs`.
+3. Model is loaded and used immediately.
 
-## 📝 Modifications Made
+### Option B: Browser global registration
 
-- Added auto-jump detection and triggering system
-- Implemented toggle controls for switching modes  
-- Added visual feedback with score color changes
-- Added instant restart functionality
-- Enhanced start screen with control instructions
-- Improved collision detection for auto-jump timing
+Call:
 
----
+```js
+window.registerDinoModel(myModel, { name: "my-model" })
+```
 
-**Enjoy the game! 🦕**
+See `models/browser-plugin-template.js` for a ready example.
+
+## Train Your Own Model
+
+1. Run the game in `Auto (MPC Planner)`.
+2. Record data and download `.jsonl`.
+3. Train a model:
+
+```powershell
+node training/train-logistic-model.mjs <path-to-data.jsonl> models/trained-logistic-model.mjs
+```
+
+4. Load `models/trained-logistic-model.mjs` using the Model File picker.
+
+More detail: `training/README.md`.
+
+## Project Layout
+
+```text
+chrome_dino_autoplay_hack/
+├── index.html
+├── script.js
+├── dino.js
+├── cactus.js
+├── ground.js
+├── styles.css
+├── updateCustomProperty.js
+├── models/
+│   ├── README.md
+│   ├── example-threshold-model.mjs
+│   └── browser-plugin-template.js
+├── training/
+│   ├── README.md
+│   └── train-logistic-model.mjs
+└── imgs/
+```
+
+## Notes
+
+- If no custom model is loaded in `Auto (Custom Model)`, the game falls back to the built-in planner.
+- Because obstacles are random, no policy can mathematically guarantee infinite life, but the default planner is designed for very strong long-run performance.

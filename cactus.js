@@ -8,6 +8,13 @@ const SPEED = 0.05
 const CACTUS_INTERVAL_MIN = 500
 const CACTUS_INTERVAL_MAX = 2000
 const worldElem = document.querySelector("[data-world]")
+const INITIAL_LEFT_PERCENT = 100
+
+export const CACTUS_SPEED = SPEED
+export const CACTUS_INTERVAL_RANGE = {
+  min: CACTUS_INTERVAL_MIN,
+  max: CACTUS_INTERVAL_MAX,
+}
 
 let nextCactusTime
 export function setupCactus() {
@@ -39,12 +46,25 @@ export function getCactusRects() {
   })
 }
 
+export function getCactusStates() {
+  return [...document.querySelectorAll("[data-cactus]")].map(cactus => {
+    const rect = cactus.getBoundingClientRect()
+    return {
+      leftPercent: getCustomProperty(cactus, "--left"),
+      leftPx: rect.left,
+      rightPx: rect.right,
+      widthPx: rect.width,
+      heightPx: rect.height,
+    }
+  })
+}
+
 function createCactus() {
   const cactus = document.createElement("img")
   cactus.dataset.cactus = true
   cactus.src = "imgs/cactus.png"
   cactus.classList.add("cactus")
-  setCustomProperty(cactus, "--left", 100)
+  setCustomProperty(cactus, "--left", INITIAL_LEFT_PERCENT)
   worldElem.append(cactus)
 }
 
